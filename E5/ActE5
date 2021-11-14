@@ -1,0 +1,34 @@
+#!/bin/bash
+
+url="https://haveibeenpwned.com/api/v3/breachedaccount/"
+
+function central() {
+#El comando jq es una "libreria" que te hace de forma mas facil
+#el entrar a los diccionarios que te manda curl
+curl -s --header "hibp-api-key: $api_key2" $url$line | jq -r '.[] | .Name'
+}
+
+echo "Ingresa la API-KEY"
+#Para no mostrar lo tecleado se usa -s
+read -s api_key2
+
+#Se usa el emails.txt como fuente de donde se tomaran cada
+#linea del texto por eso se declara la variabe ifs
+#que contiene un read "invisible" y que almacena todo
+#en otra variable llamada line.
+while ifs= read -s line
+do
+	central > info.txt
+	#direccionamos la funcion "central" hacia un 
+	#archivo txt para hacer la lectura y determinar
+        #si contiene datos, si es asi significa
+        #que fue vulnerada y el caso contrario es que es segura
+	if [ -s info.txt ]
+	then
+		echo $line " fue vulnerado en: "
+		cat info.txt
+	else 
+		echo $line " es seguro."
+	fi
+done < emails.txt
+
